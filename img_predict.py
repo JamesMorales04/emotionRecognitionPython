@@ -37,6 +37,8 @@ for (x, y, w, h) in faces_detected:
 
     emotions = ['anger', 'disgust', 'fear', 'happiness', 'neutral', 'sadness', 'surprise']
     predicted_emotion = emotions[max_index]
+    print(predicted_emotion)
+
 
     cv2.putText(img, predicted_emotion, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
 
