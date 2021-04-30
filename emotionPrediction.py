@@ -40,7 +40,25 @@ class Prediction:
                                                                                       minNeighbors=5, minSize=(30, 30),
                                                                                       flags=cv2.CASCADE_SCALE_IMAGE)
 
-            self.videoPrediction(0)
+            for (x, y, w, h) in faces_detected:
+                cv2.rectangle(img, (x, y), (x + w, y + h),
+                              (0, 255, 0), thickness=2)
+                roi_gray = gray_img[y:y + w, x:x + h]
+                roi_gray = cv2.resize(roi_gray, (48, 48))
+                img_pixels = image.img_to_array(roi_gray)
+                img_pixels = np.expand_dims(img_pixels, axis=0)
+                img_pixels /= 255.0
+
+                predictions = self.model.predict(img_pixels)
+                max_index = int(np.argmax(predictions))
+
+                predicted_emotion = self.emotions[max_index]
+
+                print(predicted_emotion)
+                cv2.putText(img, predicted_emotion, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+
+                resized_img = cv2.resize(img, (1000, 700))
+                cv2.imshow('Facial Emotion Recognition', resized_img)
 
         self.cleaningCV2()
 
@@ -76,11 +94,7 @@ class Prediction:
         self.cleaningCV2()
 
     def videoPrediction(self, route):
-        cap=None
-        if route == 0:
-            cap = cv2.VideoCapture(route)
-        else:
-            cap = cv2.VideoCapture(route)
+        cap = cv2.VideoCapture(route)
         out_file = "new"+route
         ret, frame = cap.read()
         video_shape = (int(cap.get(3)), int(cap.get(4)))
