@@ -23,43 +23,25 @@ class Prediction:
         self.model.load_weights('fer.h5')
 
     def initCV2(self):
-        self.face_haar_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        self.face_haar_cascade = cv2.CascadeClassifier(
+            cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
         self.cap = cv2.VideoCapture(0)
 
     def liveCamPredict(self):
 
+        self.cap = cv2.VideoCapture(0)
         while True:
             ret, img = self.cap.read()
             if not ret:
                 break
 
             gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces_detected = self.face_haar_cascade.detectMultiScale(
-                gray_img, 1.1, 6, minSize=(150, 150))
+            faces_detected = self.face_haar_cascade.detectMultiScale.detectMultiScale(gray_img, scaleFactor=1.05,
+                                                                                      minNeighbors=5, minSize=(30, 30),
+                                                                                      flags=cv2.CASCADE_SCALE_IMAGE)
 
-            for (x, y, w, h) in faces_detected:
-                cv2.rectangle(img, (x, y), (x + w, y + h),
-                              (0, 255, 0), thickness=2)
-                roi_gray = gray_img[y:y + w, x:x + h]
-                roi_gray = cv2.resize(roi_gray, (48, 48))
-                img_pixels = image.img_to_array(roi_gray)
-                img_pixels = np.expand_dims(img_pixels, axis=0)
-                img_pixels /= 255.0
+            self.videoPrediction(0)
 
-                predictions = self.model.predict(img_pixels)
-                max_index = int(np.argmax(predictions))
-
-                predicted_emotion = self.emotions[max_index]
-
-                print(predicted_emotion)
-                cv2.putText(img, predicted_emotion, (int(x), int(y)),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
-
-                resized_img = cv2.resize(img, (1000, 700))
-                cv2.imshow('Facial Emotion Recognition', resized_img)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
         self.cleaningCV2()
 
     def imagePrediction(self, route, imageCaputured):
@@ -72,8 +54,8 @@ class Prediction:
 
         gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces_detected = self.face_haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05,
-		minNeighbors=5, minSize=(30, 30),
-		flags=cv2.CASCADE_SCALE_IMAGE)
+                                                                 minNeighbors=5, minSize=(30, 30),
+                                                                 flags=cv2.CASCADE_SCALE_IMAGE)
 
         for (x, y, w, h) in faces_detected:
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -88,12 +70,17 @@ class Prediction:
 
             predicted_emotion = self.emotions[max_index]
             print(predicted_emotion)
-            cv2.putText(img, predicted_emotion, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            cv2.putText(img, predicted_emotion, (int(x), int(y)),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
         return img
         self.cleaningCV2()
 
     def videoPrediction(self, route):
-        cap = cv2.VideoCapture(route)
+        cap=None
+        if route == 0:
+            cap = cv2.VideoCapture(route)
+        else:
+            cap = cv2.VideoCapture(route)
         out_file = "new"+route
         ret, frame = cap.read()
         video_shape = (int(cap.get(3)), int(cap.get(4)))
@@ -102,10 +89,10 @@ class Prediction:
         out = cv2.VideoWriter(out_file, fourcc, 20.0, video_shape, True)
 
         while ret:
-            predict_image = self.imagePrediction("",frame)
+            predict_image = self.imagePrediction("", frame)
             out.write(predict_image)
             ret, frame = cap.read()
-        
+
         print(out_file + " created")
 
         self.cleaningCV2()
