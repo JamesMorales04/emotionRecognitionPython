@@ -19,9 +19,9 @@ def imageAnalsis(route):
 
 
 @app.route('/api/live', methods=['GET'])
-def liveAnalsis(route):
+def liveAnalsis():
     predictionLive=Prediction()
-    predictionLive.liveCamPredict(route)
+    predictionLive.liveCamPredict()
     return "hola"
 
 

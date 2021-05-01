@@ -28,39 +28,49 @@ class Prediction:
         self.cap = cv2.VideoCapture(0)
 
     def liveCamPredict(self):
+        cap = cv2.VideoCapture(0)
 
-        self.cap = cv2.VideoCapture(0)
-        while True:
-            ret, img = self.cap.read()
-            if not ret:
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (640, 480))
+
+        while(cap.isOpened()):
+            ret, img = cap.read()
+            if ret == True:
+                gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                faces_detected = self.face_haar_cascade.detectMultiScale(gray_img, scaleFactor=1.05,
+                                                                         minNeighbors=5, minSize=(30, 30),
+                                                                         flags=cv2.CASCADE_SCALE_IMAGE)
+
+                for (x, y, w, h) in faces_detected:
+
+                    cv2.rectangle(img, (x, y), (x + w, y + h),
+                                  (0, 255, 0), thickness=2)
+                    roi_gray = gray_img[y:y + w, x:x + h]
+                    roi_gray = cv2.resize(roi_gray, (48, 48))
+                    img_pixels = image.img_to_array(roi_gray)
+                    img_pixels = np.expand_dims(img_pixels, axis=0)
+                    img_pixels /= 255.0
+
+                    predictions = self.model.predict(img_pixels)
+                    max_index = int(np.argmax(predictions))
+
+                    predicted_emotion = self.emotions[max_index]
+
+                    cv2.putText(img, predicted_emotion, (int(x), int(y)),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+                    resized_img = cv2.resize(img, (1000, 700))
+                    cv2.imshow('Facial Emotion Recognition', resized_img)
+                
+                out.write(img)
+                
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            else:
                 break
 
-            gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces_detected = self.face_haar_cascade.detectMultiScale.detectMultiScale(gray_img, scaleFactor=1.05,
-                                                                                      minNeighbors=5, minSize=(30, 30),
-                                                                                      flags=cv2.CASCADE_SCALE_IMAGE)
-
-            for (x, y, w, h) in faces_detected:
-                cv2.rectangle(img, (x, y), (x + w, y + h),
-                              (0, 255, 0), thickness=2)
-                roi_gray = gray_img[y:y + w, x:x + h]
-                roi_gray = cv2.resize(roi_gray, (48, 48))
-                img_pixels = image.img_to_array(roi_gray)
-                img_pixels = np.expand_dims(img_pixels, axis=0)
-                img_pixels /= 255.0
-
-                predictions = self.model.predict(img_pixels)
-                max_index = int(np.argmax(predictions))
-
-                predicted_emotion = self.emotions[max_index]
-
-                print(predicted_emotion)
-                cv2.putText(img, predicted_emotion, (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
-
-                resized_img = cv2.resize(img, (1000, 700))
-                cv2.imshow('Facial Emotion Recognition', resized_img)
-
-        self.cleaningCV2()
+        cap.release()
+        out.release()
+        cv2.destroyAllWindows()
 
     def imagePrediction(self, route, imageCaputured):
 
@@ -90,6 +100,8 @@ class Prediction:
             print(predicted_emotion)
             cv2.putText(img, predicted_emotion, (int(x), int(y)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
+            resized_img = cv2.resize(img, (1000, 700))
+            cv2.imshow('Facial Emotion Recognition', resized_img)
         return img
         self.cleaningCV2()
 
@@ -111,6 +123,7 @@ class Prediction:
 
         self.cleaningCV2()
 
+        
     def cleaningCV2(self):
         self.cap.release()
         cv2.destroyAllWindows()
