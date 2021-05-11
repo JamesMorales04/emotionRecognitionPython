@@ -8,7 +8,7 @@ app = Flask(__name__)
 def videoAnalsis(route):
     predictionVideo=Prediction()
     predictionVideo.videoPrediction(route)
-    return "hola"
+    return "holaa"
 
 
 @app.route('/api/img/<string:route>', methods=['GET'])
