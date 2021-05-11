@@ -22,8 +22,8 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
-train_dir = "traine"
-test_dir = "teste"
+train_dir = "imagenes/traine"
+test_dir = "imagenes/teste"
 img_size = 48
 epochs = 60
 batch_size = 64
