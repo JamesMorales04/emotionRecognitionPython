@@ -1,8 +1,8 @@
-
-
 import cv2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import model_from_json
+import json
+import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -13,6 +13,8 @@ class Prediction:
         self.initCV2()
         self.emotions = ['anger', 'disgust', 'fear',
                          'happiness', 'neutral', 'sadness', 'surprise']
+        with open('modelParams.txt') as json_file:
+            self.data = json.load(json_file)
 
     def loadJsonModel(self, route):
 
@@ -21,6 +23,7 @@ class Prediction:
         json_file.close()
         self.model = model_from_json(loaded_model_json)
         self.model.load_weights('fer.h5')
+
 
     def initCV2(self):
         self.face_haar_cascade = cv2.CascadeClassifier(
@@ -60,9 +63,9 @@ class Prediction:
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
                     resized_img = cv2.resize(img, (1000, 700))
                     cv2.imshow('Facial Emotion Recognition', resized_img)
-                
+
                 out.write(img)
-                
+
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
             else:
@@ -101,9 +104,10 @@ class Prediction:
             cv2.putText(img, predicted_emotion, (int(x), int(y)),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.75, (255, 255, 255), 2)
             resized_img = cv2.resize(img, (1000, 700))
-            cv2.imshow('Facial Emotion Recognition', resized_img)
+            #cv2.imshow('Facial Emotion Recognition', resized_img)
+        #cv2.waitKey(0)
         return img
-        self.cleaningCV2()
+        #self.cleaningCV2()
 
     def videoPrediction(self, route):
         cap = cv2.VideoCapture(route)
@@ -123,7 +127,47 @@ class Prediction:
 
         self.cleaningCV2()
 
-        
     def cleaningCV2(self):
         self.cap.release()
         cv2.destroyAllWindows()
+
+    def makeConfusionMatrix(self):
+        pass
+
+    def showAccuracy(self):
+        
+        for p in self.data['modelParams']:
+            #print('accuracy: ' + str(p['accuracy']))
+            #print('val_accuracy: ' + str(p['val_accuracy']))
+            #print('loss: ' + str(p['loss']))
+            #print('val_loss: ' + str(p['val_loss']))
+            print('Perdia final del modelo: ' + str(p['lossEvaluate']))
+            print('Accuracy final del modelo: ' + str(p['accEvaluate']))
+
+        
+    def trainingGraphics(self):
+        
+        fig , ax = plt.subplots(1,2)
+        train_acc = self.data['modelParams'][0]['accuracy']
+        train_loss = self.data['modelParams'][0]['loss']
+        fig.set_size_inches(12,4)
+
+        ax[0].plot(self.data['modelParams'][0]['accuracy'])
+        ax[0].plot(self.data['modelParams'][0]['val_accuracy'])
+        ax[0].set_title('Training Accuracy vs Validation Accuracy')
+        ax[0].set_ylabel('Accuracy')
+        ax[0].set_xlabel('Epoch')
+        ax[0].legend(['Train', 'Validation'], loc='upper left')
+
+        ax[1].plot(self.data['modelParams'][0]['loss'])
+        ax[1].plot(self.data['modelParams'][0]['val_loss'])
+        ax[1].set_title('Training Loss vs Validation Loss')
+        ax[1].set_ylabel('Loss')
+        ax[1].set_xlabel('Epoch')
+        ax[1].legend(['Train', 'Validation'], loc='upper left')
+
+        plt.show()
+
+    def makeReport(self):
+        pass
+

@@ -24,6 +24,18 @@ def liveAnalsis():
     predictionLive.liveCamPredict()
     return "hola"
 
+@app.route('/api/summary', methods=['GET'])
+def summary():
+    predictionSummary=Prediction()
+    predictionSummary.showAccuracy()
+    return "hola"
+
+@app.route('/api/graphic', methods=['GET'])
+def graphic():
+    predictionGraphic=Prediction()
+    predictionGraphic.trainingGraphics()
+    return "hola"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
