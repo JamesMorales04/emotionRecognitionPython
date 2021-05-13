@@ -14,7 +14,7 @@ def videoAnalsis(route):
 @app.route('/api/img/<string:route>', methods=['GET'])
 def imageAnalsis(route):
     predictionImage=Prediction()
-    predictionImage.imagePrediction(route,None)
+    predictionImage.imagePrediction(route,None,0)
     return "hola"
 
 
