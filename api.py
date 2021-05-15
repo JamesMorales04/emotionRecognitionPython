@@ -33,8 +33,7 @@ def summary():
 @app.route('/api/graphic', methods=['GET'])
 def graphic():
     predictionGraphic=Prediction()
-    predictionGraphic.trainingGraphics()
-    return "hola"
+    return predictionGraphic.trainingGraphics()
 
 
 if __name__ == "__main__":

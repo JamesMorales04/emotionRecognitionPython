@@ -1,4 +1,3 @@
-from re import S
 import cv2
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.models import model_from_json
@@ -6,6 +5,8 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 from humanfriendly import format_timespan
+import base64
+from io import BytesIO
 
 
 class Prediction:
@@ -216,8 +217,10 @@ class Prediction:
         ax[1].set_xlabel('Epoch')
         ax[1].legend(['Train', 'Validation'], loc='upper left')
 
-        plt.show()
-
+        buf = BytesIO()
+        fig.savefig(buf, format="png")
+        data = base64.b64encode(buf.getbuffer()).decode("ascii")
+        return f"<img src='data:image/png;base64,{data}'/>"
     def makeReport(self):
         data = {}
         data['studentName'] = []
